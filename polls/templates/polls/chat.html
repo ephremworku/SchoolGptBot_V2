@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Chat Interface</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f1f1f1;
+        margin: 0;
+        padding: 0;
+      }
+
+      .container {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+      }
+
+      .chatbox {
+        max-width: 80%;
+        width: 400px;
+        background-color: #fff;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
+        overflow-y: auto;
+        height: 60vh;
+        margin-bottom: 20px;
+      }
+
+      .chatbox p {
+        margin: 5px 0;
+      }
+
+      .textbox {
+        max-width: 80%;
+        width: 400px;
+        padding: 10px;
+        border-radius: 20px;
+        border: none;
+        background-color: #f1f1f1;
+        resize: none;
+        font-size: 16px;
+        font-family: inherit;
+        box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
+        outline: none;
+        margin-bottom: 20px;
+      }
+
+      .send-btn {
+        width: 100px;
+        background-color: #4caf50;
+        color: #fff;
+        border: none;
+        border-radius: 20px;
+        padding: 10px;
+        font-size: 16px;
+        cursor: pointer;
+        box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
+        outline: none;
+      }
+
+      .send-btn:hover {
+        background-color: #3e8e41;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="chatbox" id="chatbox">
+        <p>Welcome to the chat</p>
+      </div>
+      <textarea
+        class="textbox"
+        placeholder="Type your message here"
+        id="userInput"
+      ></textarea>
+      <button class="send-btn" onclick="sendMessage()">Send</button>
+    </div>
+
+    {% csrf_token %}
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+  function sendMessage() {
+    var userInput = document.getElementById("userInput").value;
+    var chatbox = document.getElementById("chatbox");
+    var newMessage = document.createElement("p");
+    newMessage.innerHTML = userInput;
+    chatbox.appendChild(newMessage);
+    document.getElementById("userInput").value = "";
+    chatbox.scrollTop = chatbox.scrollHeight;
+
+    $.ajax({
+      type: "POST",
+      url: "{% url 'chat' %}",
+      data: { message: userInput, csrfmiddlewaretoken: "{{ csrf_token }}" },
+      success: function (response) {
+        var newMessage = document.createElement("p");
+        newMessage.innerHTML = response;
+        chatbox.appendChild(newMessage);
+        chatbox.scrollTop = chatbox.scrollHeight;
+      },
+    });
+  }
+
+  document
+    .getElementById("userInput")
+    .addEventListener("keyup", function (event) {
+      if (event.keyCode === 13) {
+        event.preventDefault();
+        sendMessage();
+      }
+    });
+</script>
+
+  </body>
+</html>
